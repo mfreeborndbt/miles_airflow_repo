@@ -1,0 +1,61 @@
+version: 2
+
+sources:
+  - name: raw               # logical name for this source group
+    database: miles_f_airflows
+    schema: raw
+
+    tables:
+      - name: austin_weather
+        description: Daily weather summary for Austin, TX
+        freshness:
+          warn_after: {count: 1, period: day}
+          error_after: {count: 7, period: day}
+        columns:
+          - name: date
+            description: Timestamp of the weather record (timezone-aware)
+            tests:
+              - not_null
+              - unique
+
+          - name: weather_code
+            description: WMO weather condition code
+
+          - name: temperature_2m_mean
+            description: Mean temperature at 2 m height (°C)
+
+          - name: temperature_2m_max
+            description: Maximum temperature at 2 m height (°C)
+
+          - name: temperature_2m_min
+            description: Minimum temperature at 2 m height (°C)
+
+          - name: precipitation_sum
+            description: Total precipitation (mm) for the period
+
+          - name: sunshine_duration
+            description: Sunshine duration in seconds
+
+          - name: daylight_duration
+            description: Daylight duration in seconds
+
+          - name: sunset
+            description: Sunset time represented as Unix epoch seconds
+
+          - name: sunrise
+            description: Sunrise time represented as Unix epoch seconds
+
+          - name: wind_gusts_10m_max
+            description: Maximum wind gust at 10 m height (m/s)
+
+          - name: wind_speed_10m_max
+            description: Maximum sustained wind speed at 10 m height (m/s)
+
+      - name: weather_codes
+        description: Lookup table for Open-Meteo weather condition codes
+        columns:
+          - name: weather_code
+            description: Numerical code indicating a specific weather condition
+
+          - name: description
+            description: Human-readable description of the weather condition
