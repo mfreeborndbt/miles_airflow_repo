@@ -1,9 +1,23 @@
-{{ config(materialized='view') }}
+{{ config(
+    materialized='incremental',
+    unique_key='weather_pk',
+    incremental_strategy='append'
+) }}
 
 with source as (
 
     select * 
     from {{ source('raw', 'austin_weather') }}
+
+),
+
+filtered_source as (
+
+    select *
+    from source
+    {% if is_incremental() %}
+    where date < (select min(weather_date) from {{ this }})
+    {% endif %}
 
 ),
 
@@ -23,7 +37,7 @@ renamed as (
                 "wind_gusts_10m_max": {"type": "precise", "alias": "wind_gusts"},
                 "wind_speed_10m_max": {"type": "precise", "alias": "wind_speed"}
             },
-            source_relation="source"
+            source_relation="filtered_source"
         )
     }}
 
